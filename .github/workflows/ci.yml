@@ -59,25 +59,30 @@ jobs:
           path: pydist/*.whl
           retention-days: 3
 
-  wheel-linux:
-    name: Smoke test the Linux wheel
+  wheel-smoke:
+    name: Smoke test the ${{ matrix.runner }} wheel
     needs: wheels
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # The wheels job already runs the macOS arm64 wheel.
+        runner: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/download-artifact@v8
         with:
           name: wheels
           path: pydist
       - uses: astral-sh/setup-uv@v10.3.2
+      # uv picks the wheel whose platform tag fits this runner, which checks the tags too.
       - run: |
           uv venv /tmp/venv
-          uv pip install --python /tmp/venv/bin/python pydist/*manylinux_2_17_x86_64.whl
+          uv pip install --python /tmp/venv/bin/python --no-index --find-links pydist muse-bot
           /tmp/venv/bin/muse-bot --version
           rc=0; /tmp/venv/bin/muse-bot raw no.such.method || rc=$?; test "$rc" -eq 2
 
   pypi:
     name: Publish to PyPI
-    needs: [check, wheel-linux]
+    needs: [check, wheel-smoke]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     environment:
