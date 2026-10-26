@@ -1,0 +1,42 @@
+{
+  "name": "muse-bot",
+  "version": "0.1.0",
+  "description": "CLI for your personal muse.ai agent: chat, side chats, feed, goals, ideas and sessions from the terminal",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "muse-bot": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skills"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenSWE/muse-bot.git"
+  },
+  "scripts": {
+    "build": "tsup src/cli.ts --format esm --target node24 --clean --onSuccess \"cp -R src/data dist/\"",
+    "dev": "node src/cli.ts",
+    "test": "vitest run",
+    "lint": "biome check .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.16.0",
+    "commander": "^15.0.0",
+    "noise-c.wasm": "^0.4.0",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.3",
+    "@types/node": "^26.6.5",
+    "@types/ws": "^8.18.2",
+    "tsup": "^9.0.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}
