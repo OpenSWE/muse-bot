@@ -169,7 +169,7 @@ async function chromeCookies(): Promise<Cookie[]> {
 async function readChromeCookies(): Promise<Cookie[]> {
   // Port 9222 is the Dock-launcher Chrome and never prompts; --auto-connect is the
   // chrome://inspect route, which asks for Allow.
-  const errors: string[] = [];
+  const errors: [route: string, message: string][] = [];
   for (const connect of [
     ["--cdp", "9222"],
     ["--headed", "--auto-connect"],
@@ -193,10 +193,14 @@ async function readChromeCookies(): Promise<Cookie[]> {
         }))
         .filter((c) => isMuse(c.domain));
     } catch (e) {
-      errors.push(`${connect.join(" ")}: ${(e as Error).message}`);
+      errors.push([connect.join(" "), (e as Error).message]);
     }
   }
-  throw new Error(errors.join("; "));
+  // Both routes reach the same Chrome, so they often fail alike (no muse.ai tab): say it once.
+  const messages = new Set(errors.map(([, m]) => m));
+  throw new Error(
+    messages.size === 1 ? [...messages][0] : errors.map(([r, m]) => `${r}: ${m}`).join("; "),
+  );
 }
 
 // --- ego lite through its own CLI ----------------------------------------------------
