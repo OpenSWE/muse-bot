@@ -1,6 +1,6 @@
 {
   "name": "muse-bot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CLI for your personal muse.ai agent: chat, side chats, feed, goals, ideas and sessions from the terminal",
   "license": "MIT",
   "type": "module",
