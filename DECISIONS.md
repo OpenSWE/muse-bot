@@ -274,3 +274,13 @@
 **Justification:** On 2026-10-25 three live runs (reference body, client body, client body plus x-app-id/Accept-Language headers) all ran in the main chat; the response never carried the `chat` object the Muse.app 8.0 client reads for a thread run, so this VM's server ignores session_id. Keeping the flag stays correct once the server supports it; the warning stops it failing silently.
 **Outcome:** applied
 **Ref:** (pending)
+
+## Q28 — impl/session-start — deviation
+
+**Question:** How should `session-start --title` name the new side chat, given the server drops the title?
+**Options considered:** keep the reference's `params.title` / start the chat, then call `session.rename` / drop `--title`
+**Chosen:** Start the chat without a title, then call `session.rename {session_id, title}`; the output carries the title.
+**Decided-by:** agent
+**Justification:** On 2026-10-26 a chat started with the reference's `params.title` listed `title: null` in both the active and archived views, and gained its title only after `session.rename`. The Muse.app 8.0 client never calls `session.start`, so there is no client body to copy; `session.rename` is the call it uses to name side chats.
+**Outcome:** applied
+**Ref:** (pending)

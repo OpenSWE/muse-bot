@@ -360,20 +360,20 @@ program
   .description("start a new side chat")
   .option("--title <title>", "its title")
   .action((opts: { title?: string }) =>
-    withGateway(async (gw) =>
-      out(
-        await gw.callJson("session.start", {
-          body: {
-            method: "/api/session/start",
-            params: {
-              origin: "fresh",
-              lifecycle: "persistent",
-              ...(opts.title ? { title: opts.title } : {}),
-            },
-          },
-        }),
-      ),
-    ),
+    withGateway(async (gw) => {
+      const started = (await gw.callJson("session.start", {
+        body: {
+          method: "/api/session/start",
+          params: { origin: "fresh", lifecycle: "persistent" },
+        },
+      })) as { session_id?: string };
+      // session.start ignores a title, so name the chat the way the web client renames one.
+      if (opts.title && started.session_id)
+        await gw.callJson("session.rename", {
+          body: { session_id: started.session_id, title: opts.title },
+        });
+      out(opts.title ? { ...started, title: opts.title } : started);
+    }),
   );
 
 program
