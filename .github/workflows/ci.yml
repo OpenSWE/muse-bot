@@ -59,7 +59,16 @@ jobs:
       - run: pnpm build
       # Trusted publishing needs npm 11.5.1 or newer.
       - run: npm i -g npm@latest
-      - run: npm publish --access public
+      # A version already on npm (such as a first release published by hand) skips
+      # straight to the GitHub release.
+      - name: Publish unless this version is on npm
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          if npm view "muse-bot@$version" version > /dev/null 2>&1; then
+            echo "muse-bot@$version is already on npm; skipping publish"
+          else
+            npm publish --access public
+          fi
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
