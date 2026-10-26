@@ -161,7 +161,8 @@ export class Gateway {
     return decodeFrame(this.session.decrypt(await this.nextRaw(deadline)));
   }
 
-  private open(method: string, opts: CallOptions): number {
+  // Sends a request and returns its stream id without waiting (fire-and-forget calls).
+  open(method: string, opts: CallOptions): number {
     const route = ROUTES.get(method);
     if (!route) throw new GatewayError(-1, `unknown gateway method ${method}`);
     let path = route.path;

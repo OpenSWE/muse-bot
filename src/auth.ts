@@ -1,10 +1,11 @@
 // Cookie jar and browser login borrowing (DECISIONS.md Q12, Q17, Q18, Q21–Q24).
 import { execFile } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
-import { AuthError } from "./gateway.ts";
+import { AuthError, Gateway } from "./gateway.ts";
 
 const run = promisify(execFile);
 
@@ -293,4 +294,27 @@ export async function loadCookies(autoLogin: boolean): Promise<string> {
   if (!pairs.length)
     throw new AuthError(`cookies file ${path} is empty; run \`muse-bot auth export\``);
   return cookieHeader(pairs);
+}
+
+// Connects with the saved cookies. On expired auth, borrows a fresh browser login once
+// and retries (DECISIONS.md Q17).
+export async function connect(autoLogin: boolean): Promise<Gateway> {
+  try {
+    return await Gateway.connect(await loadCookies(autoLogin), process.env.MUSE_VM_ID);
+  } catch (e) {
+    if (!(e instanceof AuthError) || !autoLogin) throw e;
+    log(`${e.message}\nre-reading the browser login…`);
+    await borrowLogin();
+    return Gateway.connect(await loadCookies(false), process.env.MUSE_VM_ID);
+  }
+}
+
+// Random per-install client id that chat.stream sends as node_id, created on first use.
+export function deviceId(): string {
+  const path = join(configDir(), "device-id");
+  if (existsSync(path)) return readFileSync(path, "utf8").trim();
+  const id = randomBytes(8).toString("hex");
+  mkdirSync(configDir(), { recursive: true });
+  writeFileSync(path, `${id}\n`);
+  return id;
 }

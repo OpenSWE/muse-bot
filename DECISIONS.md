@@ -264,3 +264,13 @@
 **Justification:** On 2026-10-25 a live read-only `muse-bot status` with cookies borrowed from ego lite completed api/session, auth/check, hatch/token, the WebSocket upgrade to hatch.metaaivm.com, the Noise XX handshake and three gateway calls with plain Node 24 — the condition Q14 set for staying plain.
 **Outcome:** applied
 **Ref:** (pending)
+
+## Q27 — impl/idea-exec — deviation
+
+**Question:** How should `idea-exec --thread` behave, given the server runs ideas in the main chat?
+**Options considered:** keep sending session_id and warn when ignored / drop `--thread` / keep the reference's silent behavior
+**Chosen:** Send the body the web client builds (`{mode, session_id?}`, path params stripped) and print a stderr warning when the response has no `chat.session_id` matching `--thread`.
+**Decided-by:** agent
+**Justification:** On 2026-10-25 three live runs (reference body, client body, client body plus x-app-id/Accept-Language headers) all ran in the main chat; the response never carried the `chat` object the Muse.app 8.0 client reads for a thread run, so this VM's server ignores session_id. Keeping the flag stays correct once the server supports it; the warning stops it failing silently.
+**Outcome:** applied
+**Ref:** (pending)
