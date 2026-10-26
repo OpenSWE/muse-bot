@@ -44,7 +44,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.2
       - run: pnpm install --frozen-lockfile
       - run: ./scripts/build-wheels.sh
       - name: Smoke test the macOS arm64 wheel
@@ -68,7 +68,7 @@ jobs:
         with:
           name: wheels
           path: pydist
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.2
       - run: |
           uv venv /tmp/venv
           uv pip install --python /tmp/venv/bin/python pydist/*manylinux_2_17_x86_64.whl
