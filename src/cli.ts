@@ -3,6 +3,7 @@
 import { readFileSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 import { Command, CommanderError, InvalidArgumentError } from "commander";
+import pkg from "../package.json" with { type: "json" };
 import {
   autoLoginAllowed,
   type Browser,
@@ -36,7 +37,7 @@ const EXIT = { error: 1, usage: 2, auth: 3 } as const;
 
 const program = new Command("muse-bot")
   .description("CLI for your personal muse.ai agent")
-  .version(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version)
+  .version(pkg.version)
   .option("--no-auto-login", "never read a browser login or install agent-browser")
   .exitOverride();
 

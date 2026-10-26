@@ -1,0 +1,35 @@
+# PyPI packaging only: each wheel wraps one standalone `bun build --compile` binary
+# (scripts/build-wheels.sh). The CLI itself is the TypeScript in src/.
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "muse-bot"
+dynamic = ["version"]
+description = "CLI for your personal muse.ai agent: chat, side chats, feed, goals, ideas and sessions from the terminal"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+keywords = ["muse", "muse-ai", "meta-ai", "ai-agent", "cli", "automation"]
+classifiers = [
+  "Environment :: Console",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/OpenSWE/muse-bot"
+Issues = "https://github.com/OpenSWE/muse-bot/issues"
+
+# One version for npm and PyPI.
+[tool.hatch.version]
+path = "package.json"
+pattern = '"version": "(?P<version>[^"]+)"'
+
+[tool.hatch.build.targets.wheel]
+bypass-selection = true
+
+[tool.hatch.build.targets.wheel.shared-scripts]
+"build/bin/muse-bot" = "muse-bot"

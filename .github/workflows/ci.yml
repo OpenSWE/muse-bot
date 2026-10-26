@@ -30,6 +30,70 @@ jobs:
           muse-bot --help
           rc=0; muse-bot raw no.such.method || rc=$?; test "$rc" -eq 2
 
+  wheels:
+    name: Build PyPI wheels
+    # macOS, so Bun signs the macOS binaries it compiles.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - uses: astral-sh/setup-uv@v10
+      - run: pnpm install --frozen-lockfile
+      - run: ./scripts/build-wheels.sh
+      - name: Smoke test the macOS arm64 wheel
+        run: |
+          uv venv /tmp/venv
+          uv pip install --python /tmp/venv/bin/python pydist/*macosx_13_0_arm64.whl
+          /tmp/venv/bin/muse-bot --version
+          rc=0; /tmp/venv/bin/muse-bot raw no.such.method || rc=$?; test "$rc" -eq 2
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wheels
+          path: pydist/*.whl
+          retention-days: 3
+
+  wheel-linux:
+    name: Smoke test the Linux wheel
+    needs: wheels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: wheels
+          path: pydist
+      - uses: astral-sh/setup-uv@v10
+      - run: |
+          uv venv /tmp/venv
+          uv pip install --python /tmp/venv/bin/python pydist/*manylinux_2_17_x86_64.whl
+          /tmp/venv/bin/muse-bot --version
+          rc=0; /tmp/venv/bin/muse-bot raw no.such.method || rc=$?; test "$rc" -eq 2
+
+  pypi:
+    name: Publish to PyPI
+    needs: [check, wheel-linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/muse-bot/
+    permissions:
+      id-token: write # PyPI trusted publishing, no stored token
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: wheels
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+
   publish:
     name: Publish to npm
     needs: check

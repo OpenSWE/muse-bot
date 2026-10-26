@@ -1,7 +1,9 @@
 // Noise_XX_25519_AESGCM_SHA256 initiator on noise-c (DECISIONS.md Q25), with empty
 // payloads both ways as the gateway expects.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+// Static, not require(), so `bun build --compile` bundles it into the binary.
+import createNoise from "noise-c.wasm";
 
 const require = createRequire(import.meta.url);
 export const PROTOCOL = "Noise_XX_25519_AESGCM_SHA256";
@@ -27,9 +29,12 @@ let lib: Promise<NoiseLib> | undefined;
 
 export function loadNoise(): Promise<NoiseLib> {
   lib ??= new Promise((resolve) => {
-    const createNoise = require("noise-c.wasm");
     // Handing over the bytes skips Emscripten's fetch(), which fails on file paths and warns.
-    const wasmBinary = readFileSync(require.resolve("noise-c.wasm/src/noise-c.wasm"));
+    // A compiled binary embeds the wasm under data/; npm installs read it from node_modules.
+    const embedded = new URL("./data/noise-c.wasm", import.meta.url);
+    const wasmBinary = readFileSync(
+      existsSync(embedded) ? embedded : require.resolve("noise-c.wasm/src/noise-c.wasm"),
+    );
     createNoise({ wasmBinary }, resolve);
   });
   return lib;

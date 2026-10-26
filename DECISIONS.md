@@ -294,3 +294,13 @@
 **Justification:** Frank chose this on 2026-10-26, so the skill ships and versions with the CLI it documents. On 2026-10-26 `npx skills@latest add OpenSWE/muse-bot --list` found the skill with no repo change. The exception is recorded in `~/.agents/docs/skills.md` (dot-agents fcbd021).
 **Outcome:** applied
 **Ref:** (pending)
+
+## Q30 — release/pypi — new-scope
+
+**Question:** How does muse-bot ship on PyPI?
+**Options considered:** a universal wheel with the bundled JS that runs on the host's Node 24 / standalone binary wheels per platform / a thin wheel that runs `npx muse-bot`
+**Chosen:** Standalone binary wheels, built with `bun build --compile` (Bun 1.4.4) for macOS arm64/x64 (`macosx_13_0`) and Linux x64/arm64 (`manylinux_2_17`); no Windows wheel. CI builds them on a macOS runner and publishes on the `v*` tag with PyPI trusted publishing.
+**Decided-by:** user (binary wheels); agent (Bun, the platform set, the tags)
+**Justification:** Frank chose binary wheels on 2026-10-26, so pip users need no Node. Bun cross-compiles every target from one machine, where Node's single-executable builds need one machine per platform. Q2's worry, native addons under Bun, no longer applies: the transport is plain `ws` and Noise is wasm (Q25). On 2026-10-26 the Bun binary ran a live `status`, `threads`, `watch`, piped chat and an ego lite export, and the arm64 wheel installed and ran `status`. The tags come from the binaries: `vtool` reads minos 13.0 on both macOS builds, and the Linux builds need at most GLIBC_2.17. The CLI's browser login paths are macOS-only, so Windows is left out until someone asks.
+**Outcome:** applied
+**Ref:** (pending)

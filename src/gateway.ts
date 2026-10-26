@@ -2,8 +2,9 @@
 // envelopes to the user's personal VM. Ported from nikships/muse-cli gateway.py;
 // see its docs/PROTOCOL.md for the protocol and server quirks.
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
 import type WebSocket from "ws";
+// A JSON import, not a file read, so a `bun build --compile` binary carries it.
+import routes from "./data/routes.json" with { type: "json" };
 import { handshake, type Session } from "./noise.ts";
 import { decodeFrame, encodeRequest, type Frame } from "./proto.ts";
 import { museFetch, openSocket } from "./transport.ts";
@@ -17,11 +18,7 @@ export interface Route {
   path: string;
   service?: string;
 }
-export const ROUTES: Map<string, Route> = new Map(
-  (JSON.parse(readFileSync(new URL("./data/routes.json", import.meta.url), "utf8")) as Route[]).map(
-    (r) => [r.method, r],
-  ),
-);
+export const ROUTES: Map<string, Route> = new Map((routes as Route[]).map((r) => [r.method, r]));
 
 // Cookies missing, expired or logged out. The CLI maps this to its auth exit code.
 export class AuthError extends Error {}
