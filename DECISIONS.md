@@ -284,3 +284,13 @@
 **Justification:** On 2026-10-26 a chat started with the reference's `params.title` listed `title: null` in both the active and archived views, and gained its title only after `session.rename`. The Muse.app 8.0 client never calls `session.start`, so there is no client body to copy; `session.rename` is the call it uses to name side chats.
 **Outcome:** applied
 **Ref:** (pending)
+
+## Q29 — release/skill — deviation
+
+**Question:** Where is the muse-bot agent skill published?
+**Options considered:** copy it to `OpenSWE/skills` with a marketplace entry, as `~/.agents/docs/skills.md` prescribes / keep it in this repo
+**Chosen:** Keep it at `skills/muse-bot/SKILL.md` in this repo; install with `npx skills add OpenSWE/muse-bot`.
+**Decided-by:** user
+**Justification:** Frank chose this on 2026-10-26, so the skill ships and versions with the CLI it documents. On 2026-10-26 `npx skills@latest add OpenSWE/muse-bot --list` found the skill with no repo change. The exception is recorded in `~/.agents/docs/skills.md` (dot-agents fcbd021).
+**Outcome:** applied
+**Ref:** (pending)

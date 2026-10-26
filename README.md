@@ -19,6 +19,7 @@ muse-bot is a TypeScript port of [nikships/muse-cli](https://github.com/nikships
 
 ```bash
 npm i -g muse-bot     # Node.js 24 or newer
+npx skills add OpenSWE/muse-bot    # optional: the agent skill, for coding agents
 ```
 
 ## Log in
